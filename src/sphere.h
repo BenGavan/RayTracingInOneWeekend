@@ -8,7 +8,7 @@ class sphere : public hittable {
 public:
     sphere(point3 _center, double _radius) : center(_center), radius(_radius) {}
 
-    bool hit(const ray &r, double ray_t_min, double ray_t_max, hit_record &rec) const override {
+    bool hit(const ray &r, interval ray_t, hit_record &rec) const override {
         vec3 oc = r.origin() - center;  // A-C
         double a = r.direction().length_squared();  // b^2
         double h = dot(r.direction(), oc); // b.(A-C)
@@ -20,9 +20,9 @@ public:
 
         // find the closest solution/root, t, to the camera that lies in the acceptable range
         double root = (-h - sqrtd) / a;
-        if (root <= ray_t_min || root >= ray_t_max) {  // closest (smallest) root is out of range
+        if (!ray_t.surrounds(root)) {  // closest (smallest) root is out of range
             root = (-h + sqrtd) / a;
-            if (root <= ray_t_min || root >= ray_t_max) { // largest root is also out of range
+            if (!ray_t.surrounds(root)) { // largest root is also out of range
                 return false;
             }
         }
