@@ -15,8 +15,9 @@ Will be responsible for:
 
 class camera{
 public:
-    double aspect_ratio = 10;  // Ratio of image width over height
-    int    image_width  = 100; // Rendered image width in pixels
+    double aspect_ratio = 10;     // Ratio of image width over height
+    int    image_width  = 100;    // Rendered image width in pixels
+    int    samples_per_pixel = 10;
 
     void render(const hittable &world) {
         initialize();
@@ -28,12 +29,12 @@ public:
         for (int j=0; j < image_height; ++j) {  // write pixels out in rows
             std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
             for (int i=0; i<image_width; ++i) {  // each row is written out left to right
-                vec3 pixel_center = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
-                vec3 ray_direction = pixel_center - center;
-                ray r(center, ray_direction);
-
-                color pixel_color = ray_color(r, world);
-                write_color(std::cout, pixel_color);
+                color pixel_color(0,0,0);
+                for (int sample = 0; sample < samples_per_pixel; ++sample) {
+                    ray r = get_ray(i, j);
+                    pixel_color += ray_color(r, world);
+                }
+                write_color(std::cout, pixel_color, samples_per_pixel);
             }
         }
 
@@ -70,10 +71,29 @@ private:
         pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
     }
 
+    ray get_ray(int i, int j) const {
+        // Randomly sampled camera ray for the pixel at location i, j
+        point3 pixel_center = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
+        point3 pixel_sample = pixel_center + pixel_sample_square();
+
+        vec3 ray_origin = center;
+        vec3 ray_direction = pixel_sample - ray_origin;
+
+        return ray(ray_origin, ray_direction);
+    }
+
+    vec3 pixel_sample_square() const {
+        // Returns a random point in the square surrouding the pixel at the origin
+        double px = -0.5 + random_double();  // random double \in [-0.5, 0.5)
+        double py = -0.5 + random_double();  // random double \in [-0.5, 0.5)
+        return (px * pixel_delta_u) + (py * pixel_delta_v);
+    }
+
     color ray_color(const ray &r, const hittable &world) const {
         hit_record rec;
         if (world.hit(r, interval(0, infinity), rec)) {
-            return 0.5 * (rec.normal + color(1,1,1));
+            vec3 direction = random_on_hemisphere(rec.normal);
+            return 0.9 * ray_color(ray(rec.p, direction), world);
         }
 
         vec3 unit_direction = unit_vector(r.direction());
