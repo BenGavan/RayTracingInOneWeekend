@@ -98,7 +98,7 @@ private:
         }
 
         if (world.hit(r, interval(0.001, infinity), rec)) {  // lower bound of 0.001 to ignore second intersections of reflected rays that have been floating point errored to be within the sphere. (Reduces the shadow acne problem)
-            vec3 direction = random_on_hemisphere(rec.normal);
+            vec3 direction = rec.normal + random_unit_vector();
             return 0.9 * ray_color(ray(rec.p, direction), depth_remaining-1, world);
         }
 
