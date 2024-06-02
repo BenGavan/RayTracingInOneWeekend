@@ -16,6 +16,7 @@ int main() {
     world.add(make_shared<sphere>(point3( 0.0, -100.5, -1.0), 100, material_ground));
     world.add(make_shared<sphere>(point3( 0.0,    0.0, -1.0), 0.5, material_center));
     world.add(make_shared<sphere>(point3(-1.2,    0.0, -1.0), 0.5, material_left));
+    world.add(make_shared<sphere>(point3(-1.2,    0.0, -1.0), -0.4, material_left));  // Negative radius leaves geometry the same, but makes the surface normal point inwards (used to make a hollow glass sphere)
     world.add(make_shared<sphere>(point3( 1.2,    0.0, -1.0), 0.5, material_right));
 
     camera cam;
