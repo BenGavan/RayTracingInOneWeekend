@@ -64,7 +64,7 @@ public:
         bool cannot_refract = refraction_ratio * sin_theta > 1.0;
         vec3 direction;
 
-        if (cannot_refract) {
+        if (cannot_refract || reflectance(cos_theta, refraction_ratio) > random_double()) {
             direction = reflect(unit_direction, rec.normal);
         } else {
             direction = refract(unit_direction, rec.normal, refraction_ratio);
@@ -76,6 +76,13 @@ public:
 
 private:
     double ir;  // index of refraction
+
+    static double reflectance(double cosine, double ref_idx) {
+        // Schlick's approximation of reflectance
+        double r0 = (1.0-ref_idx) / (1.0+ref_idx);
+        r0 = r0*r0;
+        return r0 + (1.0-r0)*pow(1.0-cosine, 5);
+    }
 };
 
 #endif
