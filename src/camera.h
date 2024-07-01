@@ -21,7 +21,10 @@ public:
     int    samples_per_pixel = 10;   // Number of rays (samples) sent out per pixel
     int    max_depth         = 10;   // Max number of times a single ray can bounce within the scene 
 
-    double vfov = 90;  // Vertical view angle (field of view) (degrees)
+    double vfov     = 90;              // Vertical view angle (field of view) (degrees)
+    point3 lookfrom = point3(0,0,-1);  // Where the camera is looking from (where the sensor plane is?)
+    point3 lookat   = point3(0,0,0);
+    vec3 vup        = vec3(0,1,0);
 
     void render(const hittable &world) {
         initialize();
@@ -50,30 +53,36 @@ private:
     point3 pixel00_loc; // Location of pixel (0,0)
     vec3 pixel_delta_u; // Offset to pixel to the right (pixel pitch horizontally)
     vec3 pixel_delta_v; // Offset to pixel below (pixel pitch vertically)
+    vec3 u, v, w;       // Camera frame basis vectors
 
     void initialize() {
         image_height = static_cast<int>(image_width / aspect_ratio);
         image_height = (image_height < 1) ? 1 : image_height;
 
-        center = point3(0,0,0);
+        center = lookfrom;
 
         // Camera - Determine viewport dimensions
-        double focal_length = 1.0;
+        double focal_length = (lookfrom - lookat).length();
         double theta = degree_to_radians(vfov);
         double h = tan(theta/2);
         double viewport_height = 2.0 * h * focal_length;
         double viewport_width = viewport_height * (static_cast<double>(image_width)/image_height);  // viewport are real, so can be less than one and non-integer
 
+        // Calculate u,v,w basis vectors 
+        w = unit_vector(lookfrom - lookat);
+        u = unit_vector(cross(vup, w));
+        v = cross(w, u);
+
         // vectors accross the horizontal and down the vertical viewport edges
-        vec3 viewport_u = vec3(viewport_width, 0, 0);
-        vec3 viewport_v = vec3(0, -viewport_height, 0);
+        vec3 viewport_u = viewport_width * u; 
+        vec3 viewport_v = viewport_height * -v;
 
         // pixel pitch vectors
         pixel_delta_u = viewport_u / image_width;
         pixel_delta_v = viewport_v / image_height;
 
         // location of the upper left pixel
-        vec3 viewport_upper_left = center - vec3(0,0,focal_length) - viewport_u/2 - viewport_v/2;
+        vec3 viewport_upper_left = center - (focal_length * w) - viewport_u/2 - viewport_v/2;
         pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
     }
 
