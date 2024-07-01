@@ -21,6 +21,8 @@ public:
     int    samples_per_pixel = 10;   // Number of rays (samples) sent out per pixel
     int    max_depth         = 10;   // Max number of times a single ray can bounce within the scene 
 
+    double vfov = 90;  // Vertical view angle (field of view) (degrees)
+
     void render(const hittable &world) {
         initialize();
 
@@ -57,7 +59,9 @@ private:
 
         // Camera - Determine viewport dimensions
         double focal_length = 1.0;
-        double viewport_height = 2.0;
+        double theta = degree_to_radians(vfov);
+        double h = tan(theta/2);
+        double viewport_height = 2.0 * h * focal_length;
         double viewport_width = viewport_height * (static_cast<double>(image_width)/image_height);  // viewport are real, so can be less than one and non-integer
 
         // vectors accross the horizontal and down the vertical viewport edges
