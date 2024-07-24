@@ -28,6 +28,10 @@ inline double random_double(double min, double max) {
     return min + (max-min) * random_double();
 }
 
+inline int random_int(int min, double max) {
+    return static_cast<int>(random_double(min, max+1));
+}
+
 // common headers
 #include "interval.h"
 #include "ray.h"
