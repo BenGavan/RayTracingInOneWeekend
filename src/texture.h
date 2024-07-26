@@ -2,6 +2,7 @@
 #define TEXTURE_H
 
 #include "rtweekend.h"
+#include "rtw_stb_image.h"
 
 class texture {
 public:
@@ -47,6 +48,30 @@ private:
     double inv_scale;
     shared_ptr<texture> even;
     shared_ptr<texture> odd;
+};
+
+
+class image_texture : public texture {
+public:
+    image_texture(const char* filename) : image(filename) {}
+
+    color value(double u, double v, const point3& p) const override {
+        if (image.height() <= 0) return color(0,1,1);
+
+        // clamp input coords to [1,0] x [0,1]
+        u = interval(0, 1).clamp(u);
+        v = 1.0 - interval(0,1).clamp(v);
+
+        int i = static_cast<int>(u * image.width());
+        int j = static_cast<int>(v * image.height());
+        auto pixel = image.pixel_data(i, j);
+        
+        auto color_scale = 1.0 / 255.0;
+        return color(color_scale*pixel[0], color_scale*pixel[1], color_scale*pixel[2]);
+    }
+
+private:
+    rtw_image image;
 };
 
 #endif
