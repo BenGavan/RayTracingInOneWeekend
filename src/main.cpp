@@ -160,7 +160,7 @@ void two_perlin_spheres() {
 
     camera cam;
     cam.aspect_ratio      = 16.0 / 9.0;
-    cam.image_width       = 800;  // increase to 1200 for final render
+    cam.image_width       = 400;  // increase to 1200 for final render
     cam.samples_per_pixel = 100;  // increase to 500 for final render
     cam.max_depth         = 50;
 
