@@ -353,13 +353,13 @@ void final_scene(int image_width, int samples_per_pixel, int max_depth) {
             double y1 = random_double(1, 101);
             double z1 = z0 + w;
 
-            boxes1.add(box(point3(x0,y0,z0), point3(x1, y1, z1), ground));
+            boxes1.add(make_shared<bvh_node>(box(point3(x0,y0,z0), point3(x1, y1, z1), ground)));
         }
     }
 
     hittable_list world;
 
-    // world.add(make_shared<bvh_node>(boxes1));
+    world.add(make_shared<bvh_node>(boxes1));
 
     auto light = make_shared<diffuse_light>(color(7,7,7));
     world.add(make_shared<quad>(point3(123,554,147), vec3(300,0,0), vec3(0,0,265), light));

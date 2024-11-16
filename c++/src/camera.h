@@ -136,7 +136,7 @@ private:
 
         ray scattered;
         color attenuation;
-        color color_from_emission = rec.mat->emitted(rec.u, rec.v, rec.p);
+        color color_from_emission = rec.mat->emitted(rec.u, rec.v, rec.p);  // DEBUG:  rec.mat is currently nullptr sometimes when using boxes 
 
         if (!rec.mat->scatter(r, rec, attenuation, scattered)) {
             return color_from_emission;
